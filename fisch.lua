@@ -142,6 +142,14 @@ local function AutoShake()
 	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
 	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
 end
+local InstantReelSelected = false
+local function Instantreel()
+	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress")
+	while true do
+		bar.Size = UDim2.new(1,0,1,0)
+		wait(0.25)
+	end
+end
 
 -- Fungsi untuk memulai Auto Shake
 local function StartAutoShake()
@@ -187,47 +195,33 @@ task.wait(2) -- Tunggu UI termuat
 local autoReelEnabled = false
 local originalSize = nil -- Simpan ukuran asli sebelum diubah
 
+local bigBarRunning = false -- Status loop
+
 local function bigBar()
-	local plr = game.Players.LocalPlayer
-	local playerGui = plr:FindFirstChild("PlayerGui")
-	if not playerGui then return end
+	if bigBarRunning then return end -- Cegah loop ganda
+	bigBarRunning = true
 
-	local reel = playerGui:FindFirstChild("reel")
-	if not reel then return end
+	task.spawn(function()
+		local plr = game.Players.LocalPlayer
 
-	local bar = reel:FindFirstChild("bar")
-	if not bar then return end
+		while bigBarRunning do
+			local playerGui = plr:FindFirstChild("PlayerGui")
+			local reel = playerGui and playerGui:FindFirstChild("reel")
+			local bar = reel and reel:FindFirstChild("bar")
+			local playerbar = bar and bar:FindFirstChild("playerbar")
 
-	local playerbar = bar:FindFirstChild("playerbar")
-	if not playerbar then return end
+			if playerbar then
+				-- Ubah ukuran jika playerbar ada
+				playerbar.Size = UDim2.new(2, 0, 2, 0)
+			end
 
-	-- Simpan ukuran asli hanya sekali (saat pertama kali diubah)
-	if not originalSize then
-		originalSize = playerbar.Size
-	end
-
-	while true do
-	playerbar.Size = UDim2.new(2,0,2, 0)
-	wait(0.25)
-	end
+			wait(0.25)
+		end
+	end)
 end
 
-local function resetBar()
-	local plr = game.Players.LocalPlayer
-	local playerGui = plr:FindFirstChild("PlayerGui")
-	if not playerGui then return end
-
-	local reel = playerGui:FindFirstChild("reel")
-	if not reel then return end
-
-	local bar = reel:FindFirstChild("bar")
-	if not bar then return end
-
-	local playerbar = bar:FindFirstChild("playerbar")
-	if not playerbar or not originalSize then return end
-
-	-- Kembalikan ke ukuran awal
-	playerbar.Size = originalSize
+local function stopBigBar()
+	bigBarRunning = false -- Menghentikan loop saat iterasi berikutnya
 end
 
 
@@ -529,7 +523,7 @@ do
 				print("Auto Fish dimulai!")
 				bigBar()
 			else
-				resetBar()
+				stopBigBar()
 				print("Auto Fish dimatikan")
 			end
 		end,
