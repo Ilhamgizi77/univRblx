@@ -6,13 +6,6 @@ local JumpConnection = nil -- Variabel untuk menyimpan koneksi event
 local plr = game:GetService("Players").LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:FindFirstChild("CoreGui") or game:GetService("CoreGui")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-
-local function pressLeftCtrl()
-	VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftControl, false, game)
-	task.wait(0.1)
-	VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.LeftControl, false, game)
-end
 
 local function setSpeed(speed)
 	local player = game.Players.LocalPlayer
@@ -60,19 +53,6 @@ local function rj()
 		tpService:TeleportToPlaceInstance(placeId, jobId, player)
 	end
 end
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = plr.PlayerGui
-screenGui.ResetOnSpawn = false
-local img = Instance.new("ImageLabel");
-img.Parent = screenGui
-img.Active = true
-img.Position = UDim2.new(0.031, 0,0.225, 0)
-local but = Instance.new("TextButton")
-but.Text = " "
-but.Parent = img
-but.Size = UDim2.fromScale(1, 1)
-but.MouseButton1Click:Connect(pressLeftCtrl)
-
 
 local Window = Fluent:CreateWindow({
 	Title = "Pyro Hub " .. Fluent.Version,
