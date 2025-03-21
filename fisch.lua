@@ -6,6 +6,7 @@ local JumpConnection = nil -- Variabel untuk menyimpan koneksi event
 local plr = game.Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:FindFirstChild("CoreGui") or game:GetService("CoreGui")
+local vim = game:GetService("VirtualInputManager")
 local teleportLocations = {
 	Moosewod = Vector3.new(391, 135, 249),
 	Roslit = Vector3.new(-1470, 133, 700),
@@ -36,6 +37,64 @@ local teleportLocations = {
 	None = nil
 	
 }
+local HOLD_TIME = 2 -- Waktu auto cast (dalam detik)
+local autoCastEnabled = false -- Status Auto Cast
+local autoCastRunning = false -- Untuk mencegah loop ganda
+
+-- Fungsi untuk mengecek apakah tombol "shake button" ada di UI
+-- Fungsi untuk mengecek apakah tombol "shake button" ada di UI
+local function isShakeButtonExist()
+	local player = game.Players.LocalPlayer
+	local playerGui = player:FindFirstChild("PlayerGui")
+	if playerGui then
+		local shakeUI = playerGui:FindFirstChild("shakeui")
+		if shakeUI and shakeUI:FindFirstChild("button") then
+			return true -- Tombol ada, jangan auto cast
+		end
+	end
+	return false -- Tidak ada tombol, bisa auto cast
+end
+
+-- Fungsi Auto Cast
+local function AutoCast()
+	if isShakeButtonExist() then
+		print("Shake button ditemukan! Auto Cast dihentikan.")
+		return
+	end
+
+	print("Auto Cast Aktif!")
+
+	-- Simulasi menekan layar secara virtual
+	local viewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
+	local touchPos = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2) -- Posisi tengah layar
+
+	vim:SendMouseButtonEvent(touchPos.X, touchPos.Y, 0, true, game, 0) -- Tekan layar
+	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
+	vim:SendMouseButtonEvent(touchPos.X, touchPos.Y, 0, false, game, 0) -- Lepas layar
+end
+
+-- Fungsi untuk memulai Auto Cast
+local function StartAutoCast()
+	if autoCastRunning then return end -- Cegah loop ganda
+	autoCastRunning = true
+
+	task.spawn(function()
+		while autoCastEnabled do
+			if not isShakeButtonExist() then
+				AutoCast()
+			end
+			task.wait(HOLD_TIME) -- Tunggu sebelum melakukan auto cast lagi
+		end
+		autoCastRunning = false -- Reset status ketika loop berhenti
+	end)
+end
+
+-- Fungsi untuk menghentikan Auto Cast
+local function StopAutoCast()
+	autoCastEnabled = false
+	print("Auto Cast Dihentikan!")
+end
+
 local function teleportToLocation(locationName)
 	if plr and plr.Character then
 		local hrp = plr.Character:FindFirstChild("HumanoidRootPart")
@@ -57,7 +116,7 @@ end
 task.wait(2) -- Tunggu UI termuat
 
 task.wait(2) -- Tunggu UI termuat
-local autoFishEnabled = false
+local autoReelEnabled = false
 local originalSize = nil -- Simpan ukuran asli sebelum diubah
 
 local function bigBar()
@@ -80,8 +139,8 @@ local function bigBar()
 	end
 
 	while true do
-	playerbar.Size = UDim2.new(1, 0, 1, 0)
-	wait(0.5)
+	playerbar.Size = UDim2.fromScale(1, 1)
+	wait(0.25)
 	end
 end
 
@@ -361,16 +420,30 @@ do
 	local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
 		Title = "Mode Auto Reel",
 		Description = "Select Mode Auto Reel",
-		Values = { "Legit", "Fail" },
+		Values = { "Legit", "Fail", "None" },
 		Multi = false,
-		Default = 0,
+		Default = "None",
 	})
 	
-	local Toggle = Tabs.Main:AddToggle("AutoFish", {
-		Title = "Auto Fish",
+	local toggle = Tabs.Main:AddToggle("AutoCast", {
+		Title = "Auto Cast",
+		Defauly = false,
+		Callback = function(value)
+			autoCastEnabled = value
+			if value then
+				StartAutoCast()
+			else
+				StopAutoCast()
+			end
+		end,
+	})
+	Options.AutoCast:SetValue(false)
+	
+	local Toggle = Tabs.Main:AddToggle("AutoReel", {
+		Title = "Auto Reel",
 		Default = false,
 		Callback = function(value)
-			autoFishEnabled = value -- Set status Auto Fish
+			autoReelEnabled = value -- Set status Auto Fish
 
 			if value then
 				print("Auto Fish dimulai!")
@@ -382,7 +455,7 @@ do
 		end,
 	})
 
-	Options.AutoFish:SetValue(false)
+	Options.AutoReel:SetValue(false)
 
 
 end
