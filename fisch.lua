@@ -58,7 +58,9 @@ task.wait(2) -- Tunggu UI termuat
 
 task.wait(2) -- Tunggu UI termuat
 local autoFishEnabled = false
-local function followFish()
+local originalSize = nil -- Simpan ukuran asli sebelum diubah
+
+local function bigBar()
 	local plr = game.Players.LocalPlayer
 	local playerGui = plr:FindFirstChild("PlayerGui")
 	if not playerGui then return end
@@ -69,19 +71,36 @@ local function followFish()
 	local bar = reel:FindFirstChild("bar")
 	if not bar then return end
 
-	local fish = bar:FindFirstChild("fish")
 	local playerbar = bar:FindFirstChild("playerbar")
+	if not playerbar then return end
 
-	if not fish or not playerbar then return end
+	-- Simpan ukuran asli hanya sekali (saat pertama kali diubah)
+	if not originalSize then
+		originalSize = playerbar.Size
+	end
 
-	-- Loop jalan terus kalau `autoFishEnabled` true
-	while autoFishEnabled do
-		playerbar.Position = fish.Position
-		followFish()
-		wait(0.05) -- Delay biar gak terlalu berat
+	while true do
+	playerbar.Size = UDim2.new(1, 0, 1, 0)
 	end
 end
 
+local function resetBar()
+	local plr = game.Players.LocalPlayer
+	local playerGui = plr:FindFirstChild("PlayerGui")
+	if not playerGui then return end
+
+	local reel = playerGui:FindFirstChild("reel")
+	if not reel then return end
+
+	local bar = reel:FindFirstChild("bar")
+	if not bar then return end
+
+	local playerbar = bar:FindFirstChild("playerbar")
+	if not playerbar or not originalSize then return end
+
+	-- Kembalikan ke ukuran awal
+	playerbar.Size = originalSize
+end
 
 
 local function ToggleInfiniteJump(Player)
@@ -355,8 +374,9 @@ do
 
 			if value then
 				print("Auto Fish dimulai!")
-				followFish()
+				bigBar()
 			else
+				resetBar()
 				print("Auto Fish dimatikan")
 			end
 		end,
