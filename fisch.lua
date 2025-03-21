@@ -507,7 +507,18 @@ do
 	})
 	
 	Options.AutoCast:SetValue(false)
-	local autoshake = Tabs
+	local autoshake = Tabs.Main:AddToggle("AutoShake", {
+		Title = "Auto Shake",
+		Default = false,
+		Callback = function(value)
+			autoShakeEnabled = value
+			if autoShakeEnabled then
+				StartAutoShake()
+			else
+				StopAutoShake()
+			end
+		end,
+	})
 	local Toggle = Tabs.Main:AddToggle("AutoReel", {
 		Title = "Auto Reel",
 		Default = false,
