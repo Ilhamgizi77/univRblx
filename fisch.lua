@@ -75,7 +75,8 @@ local function followFish()
 	-- Loop jalan terus kalau `autoFishEnabled` true
 	while autoFishEnabled do
 		playerbar.Position = fish.Position
-		wait(0.5) -- Delay biar gak terlalu berat
+		followFish()
+		wait(0.01) -- Delay biar gak terlalu berat
 	end
 end
 
