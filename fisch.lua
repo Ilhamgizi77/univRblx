@@ -48,7 +48,7 @@ local function isShakeButtonExist()
 	local playerGui = player:FindFirstChild("PlayerGui")
 	if playerGui then
 		local shakeUI = playerGui:FindFirstChild("shakeui")
-		if shakeUI and shakeUI:FindFirstChild("button") then
+		if shakeUI and shakeUI:FindFirstChild("safezone"):FindFirstChild("button") then
 			return true -- Tombol ada, jangan auto cast
 		end
 	end
@@ -140,7 +140,7 @@ local function bigBar()
 
 	while true do
 	playerbar.Size = UDim2.fromScale(1, 1)
-	wait(0.25)
+	wait(0.5)
 	end
 end
 
