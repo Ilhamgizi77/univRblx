@@ -42,17 +42,21 @@ local autoCastEnabled = false -- Status Auto Cast
 local autoCastRunning = false -- Untuk mencegah loop ganda
 
 -- Fungsi untuk mengecek apakah tombol "shake button" ada di UI
--- Fungsi untuk mengecek apakah tombol "shake button" ada di UI
 local function isShakeButtonExist()
-	local player = game.Players.LocalPlayer
+	local player = game:GetService("Players").LocalPlayer
+	if not player then return false end
+
 	local playerGui = player:FindFirstChild("PlayerGui")
-	if playerGui then
-		local shakeUI = playerGui:FindFirstChild("shakeui")
-		if shakeUI and shakeUI:FindFirstChild("safezone"):FindFirstChild("button") then
-			return true -- Tombol ada, jangan auto cast
-		end
-	end
-	return false -- Tidak ada tombol, bisa auto cast
+	if not playerGui then return false end
+
+	local shakeUI = playerGui:FindFirstChild("shakeui")
+	if not shakeUI then return false end
+
+	local safezone = shakeUI:FindFirstChild("safezone")
+	if not safezone then return false end
+
+	local button = safezone:FindFirstChild("button")
+	return button ~= nil -- True jika tombol ditemukan, False jika tidak ada
 end
 
 -- Fungsi Auto Cast
@@ -67,7 +71,7 @@ local function AutoCast()
 	-- Simulasi menekan layar secara virtual
 	local viewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
 	local touchPos = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2) -- Posisi tengah layar
-
+	task.wait(5)
 	vim:SendMouseButtonEvent(touchPos.X, touchPos.Y, 0, true, game, 0) -- Tekan layar
 	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
 	vim:SendMouseButtonEvent(touchPos.X, touchPos.Y, 0, false, game, 0) -- Lepas layar
@@ -82,6 +86,8 @@ local function StartAutoCast()
 		while autoCastEnabled do
 			if not isShakeButtonExist() then
 				AutoCast()
+			else
+				print("Shake button ditemukan! Tidak Auto Cast.")
 			end
 			task.wait(HOLD_TIME) -- Tunggu sebelum melakukan auto cast lagi
 		end
@@ -93,6 +99,68 @@ end
 local function StopAutoCast()
 	autoCastEnabled = false
 	print("Auto Cast Dihentikan!")
+end
+
+local autoShakeEnabled = false -- Status Auto Shake
+local autoShakeRunning = false -- Untuk mencegah loop ganda
+
+-- Fungsi untuk mendapatkan posisi tombol "shake button"
+local function getShakeButtonPosition()
+	local player = game:GetService("Players").LocalPlayer
+	if not player then return nil end
+
+	local playerGui = player:FindFirstChild("PlayerGui")
+	if not playerGui then return nil end
+
+	local shakeUI = playerGui:FindFirstChild("shakeui")
+	if not shakeUI then return nil end
+
+	local safezone = shakeUI:FindFirstChild("safezone")
+	if not safezone then return nil end
+
+	local button = safezone:FindFirstChild("button")
+	if not button or not button:IsA("GuiObject") then return nil end
+
+	-- Mengembalikan posisi tengah dari tombol
+	local absPos = button.AbsolutePosition
+	local absSize = button.AbsoluteSize
+	return Vector2.new(absPos.X + absSize.X / 2, absPos.Y + absSize.Y / 2)
+end
+
+-- Fungsi Auto Shake untuk menekan tombol
+local function AutoShake()
+	local buttonPos = getShakeButtonPosition()
+	if not buttonPos then
+		print("Shake button tidak ditemukan!")
+		return
+	end
+
+	print("Menekan tombol Shake di posisi:", buttonPos)
+
+	-- Simulasi menekan tombol
+	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, true, game, 0) -- Tekan
+	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
+	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
+end
+
+-- Fungsi untuk memulai Auto Shake
+local function StartAutoShake()
+	if autoShakeRunning then return end -- Cegah loop ganda
+	autoShakeRunning = true
+
+	task.spawn(function()
+		while autoShakeEnabled do
+			AutoShake()
+			task.wait(HOLD_TIME) -- Tunggu sebelum melakukan klik lagi
+		end
+		autoShakeRunning = false -- Reset status saat loop berhenti
+	end)
+end
+
+-- Fungsi untuk menghentikan Auto Shake
+local function StopAutoShake()
+	autoShakeEnabled = false
+	print("Auto Shake Dihentikan!")
 end
 
 local function teleportToLocation(locationName)
