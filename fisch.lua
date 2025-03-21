@@ -144,12 +144,30 @@ local function AutoShake()
 end
 local InstantReelSelected = false
 local function Instantreel()
-	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress")
+	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 	while true do
 		bar.Size = UDim2.new(1,0,1,0)
 		wait(0.25)
 	end
 end
+local function Failreel()
+	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
+	while true do
+		bar.Size = UDim2.new(0,0,0,0)
+		wait(0.25)
+	end
+end
+local selectedMode = "Legit"
+function autoReel()
+	if selectedMode == "Instant" then
+		Instantreel() -- Instant sukses tanpa delay
+	elseif selectedMode == "Legit" then
+		autoReel() -- Auto sukses dengan delay
+	elseif selectedMode == "Fail" then
+		Failreel() -- Langsung gagal (snap)
+	end
+end
+
 
 -- Fungsi untuk memulai Auto Shake
 local function StartAutoShake()
@@ -521,7 +539,7 @@ do
 
 			if value then
 				print("Auto Fish dimulai!")
-				bigBar()
+				Instantreel()
 			else
 				stopBigBar()
 				print("Auto Fish dimatikan")
