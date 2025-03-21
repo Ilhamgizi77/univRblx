@@ -8,6 +8,7 @@ local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:FindFirstChild("CoreGui") or game:GetService("CoreGui")
 local vim = game:GetService("VirtualInputManager")
 local teleportLocations = {
+	None = nil,
 	Moosewod = Vector3.new(391, 135, 249),
 	Roslit = Vector3.new(-1470, 133, 700),
 	Forsaken = Vector3.new(-2483, 133, 1562),
@@ -34,7 +35,6 @@ local teleportLocations = {
 	["Podium 1"] = Vector3.new(-3405, -2263, 3825),
 	["Podium 2"] = Vector3.new(-768, -3283, -688),
 	["Podium 3"] = Vector3.new(-13538, -11050, 129),
-	None = nil
 	
 }
 local HOLD_TIME = 2 -- Waktu auto cast (dalam detik)
@@ -538,6 +538,7 @@ do
 			autoShakeEnabled = value
 			if autoShakeEnabled then
 				StartAutoShake()
+				BigShakeBar()
 			else
 				StopAutoShake()
 			end
@@ -552,7 +553,6 @@ do
 				bigBar()
 			else
 				stopBigBar()
-				stopInstantReel()
 				print("Auto Fish dimatikan")
 			end
 		end,
