@@ -549,7 +549,7 @@ do
 		Callback = function(value)
 			instantReel = value
 			if value then
-				Instantreel()
+				bigBar()
 			else
 				stopBigBar()
 				stopInstantReel()
