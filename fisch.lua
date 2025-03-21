@@ -81,6 +81,7 @@ local function bigBar()
 
 	while true do
 	playerbar.Size = UDim2.new(1, 0, 1, 0)
+	wait(0.5)
 	end
 end
 
