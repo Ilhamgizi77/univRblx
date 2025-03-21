@@ -32,7 +32,9 @@ local teleportLocations = {
 	["Kraken Door"] = Vector3.new(-4389, -984, 1808),
 	["Podium 1"] = Vector3.new(-3405, -2263, 3825),
 	["Podium 2"] = Vector3.new(-768, -3283, -688),
-	["Podium 3"] = Vector3.new(-13538, -11050, 129)
+	["Podium 3"] = Vector3.new(-13538, -11050, 129),
+	None = nil
+	
 }
 local function teleportToLocation(locationName)
 	if plr and plr.Character then
@@ -76,7 +78,7 @@ local function followFish()
 	while autoFishEnabled do
 		playerbar.Position = fish.Position
 		followFish()
-		wait(0.01) -- Delay biar gak terlalu berat
+		wait(0.05) -- Delay biar gak terlalu berat
 	end
 end
 
@@ -332,14 +334,14 @@ do
 		Description = "Select a location to teleport",
 		Values = locationNames, -- Menggunakan nama lokasi sebagai opsi dropdown
 		Multi = false,
-		Default = 0,
+		Default = "None",
 		Callback = function(selected)
 			teleportToLocation(selected) -- Panggil fungsi teleportasi
 		end
 	})
 	local Dropdown = Tabs.Main:AddDropdown("Dropdown", {
-		Title = "Teleport to...",
-		Description = "Select a location to teleport",
+		Title = "Mode Auto Reel",
+		Description = "Select Mode Auto Reel",
 		Values = { "Legit", "Fail" },
 		Multi = false,
 		Default = 0,
