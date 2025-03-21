@@ -43,20 +43,24 @@ local autoCastRunning = false -- Untuk mencegah loop ganda
 
 -- Fungsi untuk mengecek apakah tombol "shake button" ada di UI
 local function isShakeButtonExist()
-	local player = game:GetService("Players").LocalPlayer
-	if not player then return false end
+	while true do 
+		local player = game:GetService("Players").LocalPlayer
+		if not player then return false end
 
-	local playerGui = player:FindFirstChild("PlayerGui")
-	if not playerGui then return false end
+		local playerGui = player:FindFirstChild("PlayerGui")
+		if not playerGui then return false end
 
-	local shakeUI = playerGui:FindFirstChild("shakeui")
-	if not shakeUI then return false end
+		local shakeUI = playerGui:FindFirstChild("shakeui")
+		if not shakeUI then return false end
 
-	local safezone = shakeUI:FindFirstChild("safezone")
-	if not safezone then return false end
+		local safezone = shakeUI:FindFirstChild("safezone")
+		if not safezone then return false end
 
-	local button = safezone:FindFirstChild("button")
-	return button ~= nil -- True jika tombol ditemukan, False jika tidak ada
+		local button = safezone:FindFirstChild("button")
+		return button ~= nil -- True jika tombol ditemukan, False jika tidak ada
+		
+	end	
+	wait(1)
 end
 
 -- Fungsi Auto Cast
@@ -121,33 +125,34 @@ local function getShakeButtonPosition()
 	local button = safezone:FindFirstChild("button")
 	if not button or not button:IsA("GuiObject") then return nil end
 
-	-- Mengembalikan posisi tengah dari tombol
-	local absPos = button.AbsolutePosition
-	local absSize = button.AbsoluteSize
-	return Vector2.new(absPos.X + absSize.X / 2, absPos.Y + absSize.Y / 2)
+	-- Karena AnchorPoint sudah 0.5, maka AbsolutePosition sudah menunjukkan titik tengahnya
+	local buttonPos = button.AbsolutePosition
+	return Vector2.new(buttonPos.X, buttonPos.Y)
 end
-local a = false
-local function BigShakeBar()
-	while a do
-		local shakebut = plr:WaitForChild("PlayerGui"):WaitForChild("shakeui"):WaitForChild("safezone"):WaitForChild("button")
-		shakebut.Size = UDim2.new(10, 0, 10, 0)
-	end
-end
+
 -- Fungsi Auto Shake untuk menekan tombol
 local function AutoShake()
-	local buttonPos = getShakeButtonPosition()
-	if not buttonPos then
-		print("Shake button tidak ditemukan!")
-		return
+	while autoShakeEnabled do
+		local buttonPos = getShakeButtonPosition()
+		if not buttonPos then
+			print("Shake button tidak ditemukan!")
+			autoShakeEnabled = false -- Matikan jika tombol tidak ditemukan
+			break
+		end
+
+		print("Menekan tombol Shake di posisi:", buttonPos)
+
+		-- Simulasi menekan tombol
+		vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, true, game, 0) -- Tekan
+		task.wait(0.1) -- Tunggu sedikit agar terdeteksi
+		vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
+
+		task.wait(0.1) -- Jeda sebelum menekan lagi (sesuaikan sesuai kebutuhan)
 	end
-
-	print("Menekan tombol Shake di posisi:", buttonPos)
-
-	-- Simulasi menekan tombol
-	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, true, game, 0) -- Tekan
-	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
-	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
+	autoShakeRunning = false
 end
+
+
 local instantReel = false
 -- idk but test
 local function Instantreel()
@@ -531,14 +536,13 @@ do
 	})
 	
 	Options.AutoCast:SetValue(false)
-	local autoshake = Tabs.Main:AddToggle("AutoShake", {
+	local autoShake = Tabs.Main:AddToggle("AutoShake", {
 		Title = "Auto Shake",
 		Default = false,
 		Callback = function(value)
 			autoShakeEnabled = value
 			if autoShakeEnabled then
 				StartAutoShake()
-				BigShakeBar()
 			else
 				StopAutoShake()
 			end
