@@ -207,8 +207,8 @@ local function bigBar()
 	end
 
 	while true do
-	playerbar.Size = UDim2.fromScale(1, 1)
-	wait(0.5)
+	playerbar.Size = UDim2.new(2,0,2, 0)
+	wait(0.25)
 	end
 end
 
@@ -505,8 +505,9 @@ do
 			end
 		end,
 	})
-	Options.AutoCast:SetValue(false)
 	
+	Options.AutoCast:SetValue(false)
+	local autoshake = Tabs
 	local Toggle = Tabs.Main:AddToggle("AutoReel", {
 		Title = "Auto Reel",
 		Default = false,
@@ -562,6 +563,5 @@ Fluent:Notify({
 	Duration = 8
 })
 
--- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
