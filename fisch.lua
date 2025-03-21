@@ -148,14 +148,18 @@ local function AutoShake()
 	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
 	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
 end
-local InstantReel = false
+local instantReel = false
 -- idk but test
 local function Instantreel()
-	while InstantReel do
+	while instantReel do
 	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 		bar.Size = UDim2.new(1,0,1,0)
 		wait(0.25)
 	end
+end
+local function stopInstantReel()
+	instantReel = false
+	print("Auto Reel Dihentikan!")
 end
 local fail = false
 local function Failreel()
@@ -238,7 +242,7 @@ local function bigBar()
 
 			if playerbar then
 				-- Ubah ukuran jika playerbar ada
-				playerbar.Size = UDim2.new(2, 0, 2, 0)
+				playerbar.Size = UDim2.new(1.1, 0, 1.1, 0)
 			end
 
 			wait(0.25)
@@ -543,11 +547,12 @@ do
 		Title = "Auto Reel",
 		Default = false,
 		Callback = function(value)
-			autoReelEnabled = value
+			instantReel = value
 			if value then
 				Instantreel()
 			else
 				stopBigBar()
+				stopInstantReel()
 				print("Auto Fish dimatikan")
 			end
 		end,
