@@ -126,7 +126,13 @@ local function getShakeButtonPosition()
 	local absSize = button.AbsoluteSize
 	return Vector2.new(absPos.X + absSize.X / 2, absPos.Y + absSize.Y / 2)
 end
-
+local a = false
+local function Shake()
+	while a do
+		local shakebut = plr:WaitForChild("PlayerGui"):WaitForChild("shakeui"):WaitForChild("safezone"):WaitForChild("button")
+		shakebut.Size = UDim2.new(10, 0, 10, 0)
+	end
+end
 -- Fungsi Auto Shake untuk menekan tombol
 local function AutoShake()
 	local buttonPos = getShakeButtonPosition()
@@ -144,15 +150,15 @@ local function AutoShake()
 end
 local InstantReelSelected = false
 local function Instantreel()
-	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 	while true do
+	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 		bar.Size = UDim2.new(1,0,1,0)
 		wait(0.25)
 	end
 end
 local function Failreel()
-	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 	while true do
+		local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 		bar.Size = UDim2.new(0,0,0,0)
 		wait(0.25)
 	end
@@ -535,21 +541,17 @@ do
 		Title = "Auto Reel",
 		Default = false,
 		Callback = function(value)
-			autoReelEnabled = value -- Set status Auto Fish
+			autoReelEnabled = value
 
 			if value then
-				print("Auto Fish dimulai!")
-				Instantreel()
+				print("Auto Fish dimulai dengan mode: " .. selectedMode)
+				Instantreel(selectedMode) -- Kirim mode ke fungsi Instantreel
 			else
 				stopBigBar()
 				print("Auto Fish dimatikan")
 			end
 		end,
 	})
-
-	Options.AutoReel:SetValue(false)
-
-
 end
 
 
