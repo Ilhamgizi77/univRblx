@@ -71,7 +71,7 @@ local function AutoCast()
 	-- Simulasi menekan layar secara virtual
 	local viewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
 	local touchPos = Vector2.new(viewportSize.X / 2, viewportSize.Y / 2) -- Posisi tengah layar
-	task.wait(5)
+	task.wait(1)
 	vim:SendMouseButtonEvent(touchPos.X, touchPos.Y, 0, true, game, 0) -- Tekan layar
 	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
 	vim:SendMouseButtonEvent(touchPos.X, touchPos.Y, 0, false, game, 0) -- Lepas layar
@@ -563,5 +563,6 @@ Fluent:Notify({
 	Duration = 8
 })
 
+-- You can use the SaveManager:LoadAutoloadConfig() to load a config
 -- which has been marked to be one that auto loads!
 SaveManager:LoadAutoloadConfig()
