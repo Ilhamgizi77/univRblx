@@ -127,7 +127,7 @@ local function getShakeButtonPosition()
 	return Vector2.new(absPos.X + absSize.X / 2, absPos.Y + absSize.Y / 2)
 end
 local a = false
-local function Shake()
+local function BigShakeBar()
 	while a do
 		local shakebut = plr:WaitForChild("PlayerGui"):WaitForChild("shakeui"):WaitForChild("safezone"):WaitForChild("button")
 		shakebut.Size = UDim2.new(10, 0, 10, 0)
@@ -148,16 +148,18 @@ local function AutoShake()
 	task.wait(0.1) -- Tunggu sedikit agar terdeteksi
 	vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
 end
-local InstantReelSelected = false
+local InstantReel = false
+-- idk but test
 local function Instantreel()
-	while true do
+	while InstantReel do
 	local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 		bar.Size = UDim2.new(1,0,1,0)
 		wait(0.25)
 	end
 end
+local fail = false
 local function Failreel()
-	while true do
+	while fail do
 		local bar = plr:WaitForChild("PlayerGui"):WaitForChild("reel"):WaitForChild("progress"):WaitForChild("bar")
 		bar.Size = UDim2.new(0,0,0,0)
 		wait(0.25)
@@ -173,7 +175,7 @@ function autoReel()
 		Failreel() -- Langsung gagal (snap)
 	end
 end
-
+local shakeNoDelay = 0.1
 
 -- Fungsi untuk memulai Auto Shake
 local function StartAutoShake()
@@ -183,7 +185,7 @@ local function StartAutoShake()
 	task.spawn(function()
 		while autoShakeEnabled do
 			AutoShake()
-			task.wait(HOLD_TIME) -- Tunggu sebelum melakukan klik lagi
+			task.wait(shakeNoDelay) -- Tunggu sebelum melakukan klik lagi
 		end
 		autoShakeRunning = false -- Reset status saat loop berhenti
 	end)
@@ -542,10 +544,8 @@ do
 		Default = false,
 		Callback = function(value)
 			autoReelEnabled = value
-
 			if value then
-				print("Auto Fish dimulai dengan mode: " .. selectedMode)
-				Instantreel(selectedMode) -- Kirim mode ke fungsi Instantreel
+				Instantreel()
 			else
 				stopBigBar()
 				print("Auto Fish dimatikan")
