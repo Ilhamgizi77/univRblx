@@ -198,7 +198,7 @@ local function StartAutoShake()
 		autoShakeRunning = false -- Reset status saat loop berhenti
 	end)
 end
-
+PyroVersion = "1.1.5"
 -- Fungsi untuk menghentikan Auto Shake
 local function StopAutoShake()
 	autoShakeEnabled = false
@@ -302,7 +302,7 @@ for name, _ in pairs(teleportLocations) do
 end
 
 local Window = Fluent:CreateWindow({
-	Title = "Pyro Hub " .. Fluent.Version,
+	Title = "Pyro Hub " .. PyroVersion,
 	SubTitle = "by dzkkkr",
 	TabWidth = 160,
 	Size = UDim2.fromOffset(480, 360),
