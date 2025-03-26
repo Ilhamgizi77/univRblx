@@ -125,7 +125,7 @@ local function getShakeButtonPosition()
 	if not button or not button:IsA("GuiObject") then return nil end
 
 	-- Karena AnchorPoint sudah 0.5, maka AbsolutePosition sudah menunjukkan titik tengahnya
-	local buttonPos = button.AbsolutePosition
+	local buttonPos = button.Position
 	return Vector2.new(buttonPos.X, buttonPos.Y)
 end
 
@@ -566,9 +566,9 @@ do
 		Callback = function(value)
 			instantReel = value
 			if value then
-				bigBar()
+				InstantReel()
 			else
-				stopBigBar()
+				stopInstantReel()
 				print("Auto Fish dimatikan")
 			end
 		end,
