@@ -381,13 +381,15 @@ local function rj()
 	end
 end
 
+local PyroVersion = "1.1.5"
+
 local locationNames = {}
 for name, _ in pairs(teleportLocations) do
 	table.insert(locationNames, name)
 end
 
 local Window = Fluent:CreateWindow({
-	Title = "Pyro Hub " .. Fluent.Version,
+	Title = "Pyro Hub " .. PyroVersion,
 	SubTitle = "by dzkkkr",
 	TabWidth = 160,
 	Size = UDim2.fromOffset(480, 360),
