@@ -60,6 +60,7 @@ local function isShakeButtonExist()
 	end	
 	wait(1)
 end
+
 local function isRodEquipped()
 	local player = game.Players.LocalPlayer
 	local character = player.Character or player.CharacterAdded:Wait()
@@ -108,13 +109,14 @@ end
 local function AutoCast()
 	if isShakeButtonExist() then
 		if autoCastRunning then return end
-		if isRodEquipped() then
+		if true then
 			while autoCastEnabled do
 				local cast = plr.Character:WaitForChild(rodName):WaitForChild("events"):WaitForChild("cast")
 				cast:FireServer(100, 1)
-				if isShakeButtonExist() then
+				if isReelExist() then
 					break
 				end
+				task.wait(0.35)
 			end
 		end
 	end
@@ -152,6 +154,7 @@ local function StartAutoCast()
 			else
 				print("Shake button ditemukan! Tidak Auto Cast.")
 			end
+			task.wait(0.35)
 		end
 		autoCastRunning = false -- Reset status ketika loop berhenti
 	end)
@@ -165,8 +168,8 @@ end
 
 local autoShakeEnabled = false -- Status Auto Shake
 local autoShakeRunning = false -- Untuk mencegah loop ganda
-local activated = false
-local function isReelExist()
+local activated = true
+function isReelExist()
 	while activated do
 		local reelui = plr.PlayerGui:WaitForChild("reel")
 		if reelui then
@@ -176,8 +179,8 @@ local function isReelExist()
 		end
 		wait(0.5)
 	end
-	return false
 end
+
 -- Fungsi untuk mendapatkan posisi tombol "shake button"
 local function getShakeButtonPosition()
 	local player = game:GetService("Players").LocalPlayer
@@ -271,7 +274,7 @@ local function stopBigBar()
 	bigBarRunning = false -- Menghentikan loop saat iterasi berikutnya
 end
 local selectedMode = "None"
-function autoReel(mode)
+local function autoReel(mode)
 	if mode == "Instant" then
 		Instantreel() -- Instant sukses tanpa delay
 	elseif mode == "Legit" then
