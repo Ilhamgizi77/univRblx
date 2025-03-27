@@ -81,7 +81,7 @@ local function getRodName()
 
 	-- Cek di tangan (equipped)
 	for _, tool in ipairs(character:GetChildren()) do
-		if tool:IsA("Tool") and string.find(string.lower(tool.Name), "rod") then
+		if tool:IsA("Tool") and string.find(string.lower(tool.Name), "Rod") then
 			return tool.Name -- Kembalikan nama Rod yang sedang dipegang
 		end
 	end
@@ -89,7 +89,7 @@ local function getRodName()
 	-- Cek di backpack
 	if backpack then
 		for _, tool in ipairs(backpack:GetChildren()) do
-			if tool:IsA("Tool") and string.find(string.lower(tool.Name), "rod") then
+			if tool:IsA("Tool") and string.find(string.lower(tool.Name), "Rod") then
 				return tool.Name -- Kembalikan nama Rod yang ada di Backpack
 			end
 		end
@@ -97,6 +97,7 @@ local function getRodName()
 
 	return nil -- Tidak ada Rod ditemukan
 end
+
 
 local function isRodExist()
 	return getRodName() ~= nil -- Jika getRodName() mengembalikan nama, berarti Rod ada
@@ -107,17 +108,10 @@ local function stopLoopSell()
 end
 -- Fungsi Auto Cast
 local function AutoCast()
-	if isShakeButtonExist() then
-		if autoCastRunning then return end
-		if true then
-			while autoCastEnabled do
-				local cast = plr.Character:WaitForChild(rodName):WaitForChild("events"):WaitForChild("cast")
-				cast:FireServer(100, 1)
-				if isReelExist() then
-					break
-				end
-				task.wait(0.35)
-			end
+	if isShakeButtonExist() then return end
+	if not isShakeButtonExist() then
+		if isRodEquipped() then
+			plr.Character:WaitForChild(rodName):WaitForChild("cast"):fireServer(100, 1)
 		end
 	end
 end
@@ -241,10 +235,11 @@ local function stopInstantReel()
 end
 local failReelrunning = false
 local function Failreel(value)
-	failReelrunning = value
-	while failReelrunning do
-		local event = game.ReplicatedStorage.events.reelfinished
-		event:FireServer(100, true)
+	if isShakeButtonExist() then return end
+	if not isShakeButtonExist() then
+		if isRodEquipped() then
+			game:GetService('ReplicatedStorage').events.reelfinished:FireServer(100, false)
+		end
 	end
 end
 local bigBarRunning = false -- Status loop
