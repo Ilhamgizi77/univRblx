@@ -74,35 +74,25 @@ local function isRodEquipped()
 
 	return false -- Rod belum di-equip
 end
-
-local function getRodName()
-	local character = plr.Character or plr.CharacterAdded:Wait()
+local selectedFishName = nil
+local function getRodPath()
 	local backpack = plr:FindFirstChild("Backpack")
+	if not backpack then return nil end
 
-	-- Cek di tangan (equipped)
-	for _, tool in ipairs(character:GetChildren()) do
-		if tool:IsA("Tool") and string.find(string.lower(tool.Name), "Rod") then
-			return tool.Name -- Kembalikan nama Rod yang sedang dipegang
-		end
-	end
-
-	-- Cek di backpack
-	if backpack then
-		for _, tool in ipairs(backpack:GetChildren()) do
-			if tool:IsA("Tool") and string.find(string.lower(tool.Name), "Rod") then
-				return tool.Name -- Kembalikan nama Rod yang ada di Backpack
-			end
+	-- Cari Rod di Backpack menggunakan GetDescendants()
+	for _, item in ipairs(backpack:GetDescendants()) do
+		if item:IsA("Tool") and string.find(string.lower(item.Name), "Rod") then
+			return item:GetFullName() -- Kembalikan path lengkap Rod
 		end
 	end
 
 	return nil -- Tidak ada Rod ditemukan
 end
 
-
 local function isRodExist()
-	return getRodName() ~= nil -- Jika getRodName() mengembalikan nama, berarti Rod ada
+	return getRodPath() ~= nil -- Jika getRodName() mengembalikan nama, berarti Rod ada
 end
-local rodName = getRodName()
+local rodName = getRodPath()
 local function stopLoopSell()
 	
 end
@@ -196,50 +186,75 @@ local function getShakeButtonPosition()
 	local buttonPos = button.AbsolutePosition
 	return Vector2.new(buttonPos.X, buttonPos.Y)
 end
-
 -- Fungsi Auto Shake untuk menekan tombol
 local function AutoShake()
+	if not isShakeButtonExist() then return end
+	local buttonPos = getShakeButtonPosition()
+	if not buttonPos then return end
 	while autoShakeEnabled do
-		local buttonPos = getShakeButtonPosition()
-		if not buttonPos then
-			print("Shake button tidak ditemukan!")
-			autoShakeEnabled = false -- Matikan jika tombol tidak ditemukan
+		local shakeButton = isShakeButtonExist()
+		if shakeButton then
+			shakeButton.Position = UDim2.new(0, buttonPos.X, 0, buttonPos.Y)
+		else
+			print("Shake button not found! Auto Shake dihentikan.")
 			break
 		end
-
-		print("Menekan tombol Shake di posisi:", buttonPos)
-
-		-- Simulasi menekan tombol
-		vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, true, game, 0) -- Tekan
-		task.wait(0.1) -- Tunggu sedikit agar terdeteksi
-		vim:SendMouseButtonEvent(buttonPos.X, buttonPos.Y, 0, false, game, 0) -- Lepas
-
-		task.wait(0.1) -- Jeda sebelum menekan lagi (sesuaikan sesuai kebutuhan)
+		wait(0.1)
 	end
-	autoShakeRunning = false
 end
-
-
+local SGUI = Instance.new("ScreenGui")
+SGUI.ResetOnSpawn = false
+SGUI.Parent = gethui()
 local instantReel = false
 -- idk but test
 local function Instantreel()
 	instantReel = true
 	while instantReel do
-	game:GetService("ReplicatedStorage").events.reelfinished:FireServer(math.random(95, 105), true)
-	wait(0.2)
+	if isReelExist() then
+	game:GetService("ReplicatedStorage").events.reelfinished:FireServer(math.random(80, 100), true)
 	end
+		wait(0.25)
+	end
+end
+local function Appraise(fishName)
+	local rf = game:GetService("Workspace"):WaitForChild("world")
+		:WaitForChild("npcs"):WaitForChild("Appraiser")
+		:WaitForChild("appraiser"):WaitForChild("appraise")
+	if not plr or not plr.Character then
+		warn("Player atau Character tidak ditemukan!")
+		return
+	end
+	local backpack = plr:FindFirstChild("Backpack")
+	if not backpack then
+		warn("Backpack tidak ditemukan!")
+		return
+	end
+	local fish = backpack:FindFirstChild(fishName)
+	if not fish then
+		warn("Tool tidak ditemukan di Backpack:", fishName)
+		return
+	end
+	local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		humanoid:EquipTool(fish)
+	else
+		warn("Humanoid tidak ditemukan!")
+		return
+	end
+	rf:InvokeServer()
 end
 local function stopInstantReel()
 	instantReel = false
 	print("Auto Reel Dihentikan!")
 end
 local failReelrunning = false
-local function Failreel(value)
+local function Failreel()
 	if isShakeButtonExist() then return end
 	if not isShakeButtonExist() then
-		if isRodEquipped() then
+		if isReelExist() then
 			game:GetService('ReplicatedStorage').events.reelfinished:FireServer(100, false)
 		end
+		wait(0.25)
 	end
 end
 local bigBarRunning = false -- Status loop
@@ -722,7 +737,35 @@ do
 			end
 		end
 	})
-	
+	Tabs.Inventory:AddParagraph({
+		Title = "Appraise",
+		Content = "Appraise Your Fish"
+	})
+	Tabs.Inventory:AddInput("TypeFishName", {
+		Title = "Type specific name of fish in here",
+		Default = "None",
+		Placeholder = "Enter specific name",
+		Numeric = false, -- Ubah ke false karena nama ikan bukan angka
+		Finished = true,
+		Callback = function(state)
+			if state and state ~= "" then
+				selectedFishName = state -- Simpan input ikan
+			end
+		end,
+	})
+
+	-- Tombol untuk memulai proses auto appraise
+	Tabs.Inventory:AddButton({
+		Title = "Auto Appraise",
+		Default = false,
+		Callback = function()
+			if selectedFishName ~= "None" and selectedFishName ~= "" then
+				Appraise(selectedFishName) -- Panggil fungsi Appraise dengan nama ikan
+			else
+				warn("Masukkan nama ikan terlebih dahulu!") -- Debugging kalau input kosong
+			end
+		end,
+	})
 end
 
 
