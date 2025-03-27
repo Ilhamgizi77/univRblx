@@ -101,9 +101,9 @@ local function isRodExist()
 	return getRodName() ~= nil -- Jika getRodName() mengembalikan nama, berarti Rod ada
 end
 local rodName = getRodName()
-print(getRodName() + "Penanda")
-
-
+local function stopLoopSell()
+	
+end
 -- Fungsi Auto Cast
 local function AutoCast()
 	if isShakeButtonExist() then
@@ -112,7 +112,9 @@ local function AutoCast()
 			while autoCastEnabled do
 				local cast = plr.Character:WaitForChild(rodName):WaitForChild("events"):WaitForChild("cast")
 				cast:FireServer(100, 1)
-				task.wait(0.5)
+				if isShakeButtonExist() then
+					break
+				end
 			end
 		end
 	end
@@ -679,7 +681,7 @@ do
 			sell()
 		end,
 	})
-	Tabs.Inventory:AddToggle({
+	local toggle = Tabs.Inventory:AddToggle("AutoSell",{
 		Title = "Auto Sell Hand",
 		Default = false,
 		Callback = function(value)
@@ -707,7 +709,7 @@ do
 		end
 	})
 
-	Tabs.Inventory:AddToggle({
+	local toggle = Tabs.Inventory:AddToggle("LoopSellAll",{
 		Title = "Loop Sell All",
 		Default = false,
 		Callback = function(state)
