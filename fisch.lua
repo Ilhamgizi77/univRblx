@@ -101,16 +101,7 @@ end
 local rodName = getRodPath()
 
 -- Fungsi Auto Cast
-local function AutoCast()
-	if isShakeButtonExist() then return end  -- Jika tombol shake ada, tidak lanjut
-
-	if not plr or not plr.Character then 
-		warn("Pemain atau Character tidak ditemukan!")
-		return 
-	end
-
-	if not isRodEquipped() then return end  -- Jika tidak ada Rod yang dipakai, keluar
-
+local function cast()
 	for _, item in ipairs(plr.Character:GetChildren()) do
 		if item:IsA("Tool") and item.Name and string.find(string.lower(item.Name), "rod") then
 			print("Rod ditemukan di Character:", item.Name)
@@ -166,7 +157,7 @@ local function StartAutoCast()
 	autoCastRunning = true
 		while autoCastEnabled do
 		if not isShakeButtonExist() or isReelExist() then
-			AutoCast()
+			cast()
 		else
 			print("Shake button atau reel ui ditemukan! Tidak Auto Cast.")
 		end
@@ -216,7 +207,9 @@ local function getShakeButtonPosition()
 	local buttonPos = button.AbsolutePosition
 	return Vector2.new(buttonPos.X, buttonPos.Y)
 end
--- Fungsi Auto Shake untuk menekan tombol
+local function DebugENDSREEL()
+	game.ReplicatedStorage.events["reelfinished" .. ' ']:FireServer(100, true)
+end
 local function AutoShake()
 	if not isShakeButtonExist() then return end
 	local buttonPos = getShakeButtonPosition()
@@ -230,6 +223,13 @@ local function AutoShake()
 			break
 		end
 		wait(0.1)
+	end
+end
+local function disable()
+	for _, any in ipairs(plr.Character:GetChildren()) do
+		if any:IsA("LocalScript") or any:IsA("Script") then
+			any.Enabled = false
+		end
 	end
 end
 local SGUI = Instance.new("ScreenGui")
@@ -473,6 +473,8 @@ local Tabs = {
 	Main = Window:AddTab({ Title = " Tab Main", Icon = "" }),
 	Inventory = Window:AddTab({ Title = "Tab Inventory", Icon = "" }),
 	Teleport = Window:AddTab({ Title = "Tab Teleport", Icon = "" }),	
+	Misc = Window:AddTab({ Title = "Tab Misc", Icon = "" }),
+	Debug = Window:AddTab({ Title = "Tab Debug", Icon = "" }),
 	Settings = Window:AddTab({ Title = "Settings", Icon = "" })
 }
 
@@ -857,6 +859,51 @@ do
 			appraiseHand()
 		end,
 	})
+	Tabs.Misc:AddButton({
+		Title = "Disable All",
+		Description = "Will Disable oxygen, oxygen(peaks), temperature, temperature(heat)",
+		Callback = function()
+			disable()
+		end,
+	})
+	Tabs.Debug:AddParagraph({
+		Title = "DEBUG Tab",
+		Content = "This Is Debug Tab If You Got Bugged May You Can Debug In this Tab."
+	})
+	Tabs.Debug:AddButton({
+		Title = "Ends Reel",
+		Description = "Ending Reel",
+		Callback = function()
+			DebugENDSREEL()
+		end,
+	})
+	Tabs.Debug:AddButton({
+		Title = "Reset",
+		Description = "Reset Your Char.",
+		Callback = function()
+			Window:Dialog({
+				Title = "Reset Char.",
+				Content = "Are You Sure Want To Continue?",
+				Buttons = {
+					{
+						Title = "Confirm",
+						Callback = function()
+							print("Confirmed the dialog.")
+							wait()
+							plr.Character:FindFirstChildOfClass("Humanoid").Health = 0
+						end
+					},
+					{
+						Title = "Cancel",
+						Callback = function()
+							print("Cancelled the dialog.")
+						end
+					}
+				}
+			})
+		end,
+	})
+	
 end
 
 
