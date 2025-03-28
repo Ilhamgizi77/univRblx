@@ -36,6 +36,48 @@ local teleportLocations = {
 	["Podium 3"] = Vector3.new(-13538, -11050, 129),
 	
 }
+local mutationList = {
+	"Tentacle Surge",
+	"Prismize",
+	"Aurora",
+	"Wrath",
+	"Ashen Fortune",
+	"Aureolin",
+	"Aurulent",
+	"Heavenly",
+	"Subspace",
+	"Mythical",
+	"Aureate",
+	"Greedy",
+	"Nuclear",
+	"Revitalized",
+	"Sunken",
+	"Abyssal",
+	"Electric Shock",
+	"Atlantean",
+	"Aurelian",
+	"Blighted",
+	"Seasonal Spring",
+	"Anomalous",
+	"Fossilized",
+	"Lunar",
+	"Seasonal Winter",
+	"Solarblaze",
+	"Sleet",
+	"Aurous",
+	"Celestial",
+	"Midas",
+	"Purified",
+	"Crystalized",
+	"Glossy",
+	"Silver",
+	"King’s Blessing",
+	"Mosaic",
+	"Hexed",
+	"Electric",
+	"Darkened",
+	"Frozen"
+}
 
 local selectedLocation; 
 local autoCastEnabled = false -- Status Auto Cast
@@ -99,12 +141,42 @@ local function isRodExist()
 	return getRodPath() ~= nil -- Jika getRodName() mengembalikan nama, berarti Rod ada
 end
 local rodName = getRodPath()
-
+local casted = false
 -- Fungsi Auto Cast
 local function cast()
+	if casted then return end
+	casted = true
+	while not plr.PlayerGui:WaitForChild("shakeui") and plr.PlayerGui:WaitForChild("reel") and casted do
+		for _, item in ipairs(plr.Character:GetChildren()) do
+			if item:IsA("Tool") and item.Name and string.find(string.lower(item.Name), "rod") then
+				print("Rod ditemukan di Character:", item.Name)
+
+				local rod = plr.Character:FindFirstChild(item.Name)
+				if rod then
+					local events = rod:FindFirstChild("events")
+					if events then
+						local castEvent = events:FindFirstChild("cast")
+						if castEvent then
+							castEvent:FireServer(100, 1) 
+						else
+							warn("Event 'cast' tidak ditemukan di Rod!")
+						end
+					else
+						warn("Folder 'events' tidak ditemukan di Rod!")
+					end
+				end
+				if not rod then
+					wait(10)
+					plr:FindFirstChildWhichIsA("Humanoid"):EquipTool(plr.Backpack:FindFirstChild(item.Name))
+				end
+			end
+		end
+		wait()  
+	end
+end
+local function DebugCAST()
 	for _, item in ipairs(plr.Character:GetChildren()) do
 		if item:IsA("Tool") and item.Name and string.find(string.lower(item.Name), "rod") then
-			print("Rod ditemukan di Character:", item.Name)
 
 			local rod = plr.Character:FindFirstChild(item.Name)
 			if rod then
@@ -123,7 +195,6 @@ local function cast()
 		end
 	end
 end
-
 local function sell()
 	game:GetService('ReplicatedStorage').events.Sell:InvokeServer()
 end
@@ -164,7 +235,6 @@ local function StartAutoCast()
 		task.wait(0.35)
 	end
 end
-
 -- Fungsi untuk menghentikan Auto Cast
 local function StopAutoCast()
 	autoCastEnabled = false
@@ -226,24 +296,21 @@ local function AutoShake()
 	end
 end
 local function disable()
-	for _, any in ipairs(plr.Character:GetChildren()) do
-		if any:IsA("LocalScript") or any:IsA("Script") then
+	for _, any in ipairs(plr.Character:GetDescendants()) do
+		if any.Name == "oxygen" and any.Name == "oxygen(peaks)" and any.Name == "temperature" and any.Name == "temperature(heat)" and any.Name == "gas" then
 			any.Enabled = false
 		end
 	end
 end
-local SGUI = Instance.new("ScreenGui")
-SGUI.ResetOnSpawn = false
-SGUI.Parent = gethui()
 local instantReel = false
 -- idk but test
 local function Instantreel()
 	if instantReel then return end
 	instantReel = true
 	while instantReel do
-	if isReelExist() then
-		game:GetService("ReplicatedStorage").events["reelfinished" .. ' ']:FireServer(100, true)
-	end
+		if plr.PlayerGui:WaitForChild("reel") then
+			game:GetService("ReplicatedStorage").events["reelfinished" .. ' ']:FireServer(100, true)
+		end
 		wait(0.25)
 	end
 end
@@ -251,6 +318,26 @@ local function appraiseHand()
 	local rf = game.Workspace.world.npcs.Appraiser.appraiser.appraise
 	rf:InvokeServer()
 end
+local laphum = false
+local function LoopAppraiseHandUntilMutation(mutations, fishname)
+	local rf = game.Workspace.world.npcs.Appraiser.appraiser.appraise
+	local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+
+	for _, item in ipairs(plr.Backpack:GetChildren()) do
+		local itemName = string.lower(item.Name)
+
+		for _, mutation in ipairs(mutations) do
+			if itemName:find(mutation) then
+				while laphum do
+					hum:EquipTool(fishname)
+					rf:InvokeServer()
+					wait(1)
+				end
+			end
+		end
+	end
+end
+
 -- Variabel global untuk menyimpan nama ikan yang dipilih
 local selectedFishName = "None"
 
@@ -258,43 +345,7 @@ local function Appraise(fishName)
 	local rf = game:GetService("Workspace"):WaitForChild("world")
 		:WaitForChild("npcs"):WaitForChild("Appraiser")
 		:WaitForChild("appraiser"):WaitForChild("appraise")
-
-	if not rf then
-		warn("Remote Function 'appraise' tidak ditemukan!")
-		return
-	end
-
-	if not plr or not plr.Character then
-		warn("Player atau Character tidak ditemukan!")
-		return
-	end
-
-	local backpack = plr:FindFirstChild("Backpack")
-	if not backpack then
-		warn("Backpack tidak ditemukan!")
-		return
-	end
-
-	local fish = backpack:FindFirstChild(fishName)
-	if not fish then
-		warn("Ikan tidak ditemukan di Backpack:", fishName)
-		Fluent:Notify({
-			Title = "Errno",
-			Content = "The fish '" .. fishName .. "' is not in your inventory!",
-			Duration = 8
-		})
-		return
-	end
-
-	local humanoid = plr.Character:FindFirstChildOfClass("Humanoid")
-	if not humanoid then
-		warn("Humanoid tidak ditemukan!")
-		return
-	end
-
-	humanoid:EquipTool(fish) -- Equip ikan sebelum appraisal
-	rf:InvokeServer() -- Panggil server untuk menilai ikan
-	print("Appraising:", fishName)
+	
 end
 local function stopInstantReel()
 	instantReel = false
@@ -875,6 +926,13 @@ do
 		Description = "Ending Reel",
 		Callback = function()
 			DebugENDSREEL()
+		end,
+	})
+	Tabs.Debug:AddButton({
+		Title = "Cast",
+		Description = "If script can't casted use this!",
+		Callback = function()
+			DebugCAST()
 		end,
 	})
 	Tabs.Debug:AddButton({
