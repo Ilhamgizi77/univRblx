@@ -162,15 +162,16 @@ end
 -- Fungsi untuk memulai Auto Cast
 local function StartAutoCast()
 	if autoCastRunning then return end -- Cegah loop ganda
+	if isRodEquipped() then return end
 	autoCastRunning = true
 		while autoCastEnabled do
-			if not isShakeButtonExist() or isReelExist() then
-				AutoCast()
-			else
-				print("Shake button atau reel ui ditemukan! Tidak Auto Cast.")
-			end
-			task.wait(0.35)
+		if not isShakeButtonExist() or isReelExist() then
+			AutoCast()
+		else
+			print("Shake button atau reel ui ditemukan! Tidak Auto Cast.")
 		end
+		task.wait(0.35)
+	end
 end
 
 -- Fungsi untuk menghentikan Auto Cast
